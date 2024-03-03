@@ -5,7 +5,31 @@
 	1. "Solution Platforms" -> x64
 */
 
-#define PressedKey(s)	GetAsyncKeyState(toupper(s))
+//#define PressedKey(s)	GetAsyncKeyState(toupper(s) )
+
+//#define PressedKey(s) ((GetAsyncKeyState(s) & 0x80000000) ? 1 : 0)
+//bool PressedKey(int Key) {
+//
+///*	short i;
+//	i = GetAsyncKeyState(Key);
+//	if ((i & (short)0x8000) != 0) {
+//		return true;
+//	}
+//	else {
+//		return false;
+//	}
+//	i++;*/
+//	return 0;
+//}
+
+bool PressedKey(short key) {
+	short i = GetAsyncKeyState(toupper(key));
+	if ((i & 0x8000) == 0) {
+		return false;
+	}
+	return true;
+}
+#define FPS		165
 
 struct TPosition {
 public:
@@ -24,6 +48,7 @@ public:
 		return { this->x - p.x, this->y - p.y };
 	}
 };
+
 
 void Posun(SDL_Rect *rect1, TPosition *posun1, SDL_Rect* rect2, TPosition* posun2) {
 	
@@ -68,6 +93,11 @@ void Posun(SDL_Rect *rect1, TPosition *posun1, SDL_Rect* rect2, TPosition* posun
 
 int main(int argc, char* args[]) {
 
+	const float deltaTime = 1000.0f / FPS;
+	std::chrono::time_point<std::chrono::high_resolution_clock> first, second;
+	std::chrono::milliseconds duration;
+
+
 	SDL_Init(SDL_INIT_EVERYTHING);
 	SDL_Window* window = SDL_CreateWindow("TITLE", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 1);
@@ -75,6 +105,8 @@ int main(int argc, char* args[]) {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 	SDL_RenderPresent(renderer);
+
+	TPosition gravity(0, 1);
 
 	SDL_Rect *rect1 = new SDL_Rect();
 	rect1->x = 30;
@@ -85,74 +117,93 @@ int main(int argc, char* args[]) {
 
 
 	SDL_Rect* rect2 = new SDL_Rect();
-	rect2->x = 230;
+	/*rect2->x = 230;
 	rect2->y = 230;
 	rect2->w = 80;
-	rect2->h = 140;
+	rect2->h = 140;*/
+	rect2->x = 10;
+	rect2->y = 550;
+	rect2->w = 700;
+	rect2->h = 10;
 	TPosition vec2(0, 0);
 
 	SDL_Event *e = new SDL_Event();
 	bool end = false;
+
+	first = std::chrono::high_resolution_clock::now();
 	while (!end) {
-		while (SDL_PollEvent(e)) {
-			if(e->type == SDL_QUIT)
-				end = true;
-			else if (e->type == SDL_KEYDOWN) {
+		if (PressedKey(VK_SPACE))
+			__debugbreak();
+		if(PressedKey(VK_ESCAPE))
+			end = true;
 
-				vec1.x = 0;
-				vec1.y = 0;
+		Sleep(2);
+		
 
-				vec2.x = 0;
-				vec2.y = 0;
+		// Je stisknuta klavesa	
+		vec1.x = 0;
+		vec1.y = 0;
 
-				SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-				SDL_RenderClear(renderer);
-				SDL_RenderPresent(renderer);
+		vec2.x = 0;
+		vec2.y = 0;
 
-				if (PressedKey(VK_UP)) {
-					vec1.y = -13;
-				}
-				else if (PressedKey(VK_DOWN)) {
-					vec1.y = 13;
-				}
-				else if (PressedKey(VK_LEFT)) {
-					vec1.x = -13;
-				}
-				else if (PressedKey(VK_RIGHT)) {
-					vec1.x = 13;
-				}
-				
-
-				if (PressedKey('w')) {
-					vec2.y = -6;
-				}
-				else if (PressedKey('s')) {
-					vec2.y = 6;
-				}
-				else if (PressedKey('a')) {
-					vec2.x = -6;
-				}
-				else if (PressedKey('d')) {
-					vec2.x = 6;
-				}
-				
-				if(PressedKey(VK_SPACE))
-					__debugbreak();
-
-				Posun(rect1, &vec1, rect2, &vec2);
-				Posun(rect2, &vec2, rect1, &vec1);
-
-				SDL_RenderClear(renderer);
-
-				SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-				SDL_RenderFillRect(renderer, rect1);
-				SDL_SetRenderDrawColor(renderer, 127, 255, 255, 255);
-				SDL_RenderFillRect(renderer, rect2);
-
-				SDL_RenderPresent(renderer);
-				
-			}
+		
+		if (PressedKey(VK_UP)) {
+			vec1.y = -1;
 		}
+		else if (PressedKey(VK_DOWN)) {
+			vec1.y = 1;
+		}
+		else if (PressedKey(VK_LEFT)) {
+			vec1.x = -1;
+		}
+		else if (PressedKey(VK_RIGHT)) {
+			vec1.x = 1;
+		}
+		//vec1 = vec1 + gravity;
+		
+
+		
+		if (PressedKey('w')) {
+			vec2.y = -1;
+		}
+		else if (PressedKey('s')) {
+			vec2.y = 1;
+		}
+		else if (PressedKey('a')) {
+			vec2.x = -1;
+		}
+		else if (PressedKey('d')) {
+			vec2.x = 1;
+		}
+		
+
+		
+
+		Posun(rect1, &vec1, rect2, &vec2);
+		Posun(rect2, &vec2, rect1, &vec1);
+
+		duration = std::chrono::duration_cast<std::chrono::milliseconds>(second - first);
+
+		if (duration.count() >= deltaTime) {
+			first = std::chrono::high_resolution_clock::now();
+
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+			SDL_RenderClear(renderer);
+			SDL_RenderPresent(renderer);
+
+
+			SDL_RenderClear(renderer);
+
+			SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+			SDL_RenderFillRect(renderer, rect1);
+			SDL_SetRenderDrawColor(renderer, 127, 255, 255, 255);
+			SDL_RenderFillRect(renderer, rect2);
+
+			SDL_RenderPresent(renderer);
+		}
+		second = std::chrono::high_resolution_clock::now();
+		
 	}
 
 	return 0;
