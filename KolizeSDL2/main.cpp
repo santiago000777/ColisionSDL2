@@ -160,7 +160,7 @@ int main(int argc, char* args[]) {
 		else if (PressedKey(VK_RIGHT)) {
 			vec1.x = 1;
 		}
-		//vec1 = vec1 + gravity;
+		
 		
 
 		
