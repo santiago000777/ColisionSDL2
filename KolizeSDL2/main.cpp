@@ -66,34 +66,25 @@ eBodKolize MistoKolize(SDL_Rect* rect1, TPosition* posun1, SDL_Rect* rect2, TPos
 	if ((rect1->x + posun1->x + rect1->w > rect2->x && rect1->x + posun1->x < rect2->x + rect2->w)
 		&& (rect1->y + posun1->y + rect1->h > rect2->y && rect1->y + posun1->y < rect2->y + rect2->h)) {
 
-		if (posun1->x > 0 && posun2->x > 0)
-			return eBodKolize::RIGHT;
-		else if (posun1->x < 0 && posun2->x < 0)
-			return eBodKolize::LEFT;
-		else if (posun1->y > 0 && posun2->y > 0)
-			return eBodKolize::DOWN;
-		else if (posun1->y < 0 && posun2->y < 0)
-			return eBodKolize::UP;
-
-		else if (posun1->x > 0 && (rect1->x + rect1->w /*+ posun1->x*/ <= rect2->x)) { // >
-			posun1->x = rect2->x - (rect1->x + rect1->w);
+		if (posun1->x > 0 && (rect1->x + rect1->w <= rect2->x)) {
+			posun1->x = rect2->x - (rect1->x + rect1->w) + posun2->x;
 			rect1->x += posun1->x;
 			return eBodKolize::RIGHT; 
 		}
-		else if (posun1->x < 0 && (rect1->x /*+ posun1->x*/ >= rect2->x + rect2->w)) { // <
-			posun1->x = rect1->x - (rect2->x + rect2->w);
+		else if (posun1->x < 0 && (rect1->x >= rect2->x + rect2->w)) {
+			posun1->x = rect1->x - (rect2->x + rect2->w) - posun2->x;
 			posun1->x *= -1;
 			rect1->x += posun1->x;
 			return eBodKolize::LEFT; 
 		}
-		else if (posun1->y > 0 && (rect1->y /*+ posun1->y*/ + rect1->h <= rect2->y)) { // >
+		else if (posun1->y > 0 && (rect1->y + rect1->h <= rect2->y)) {
 			
-			posun1->y = rect2->y - (rect1->y + rect1->h);
+			posun1->y = rect2->y - (rect1->y + rect1->h) + posun2->y;
 			rect1->y += posun1->y;
 			return eBodKolize::DOWN; 
 		}
-		else if (posun1->y < 0 && (rect1->y /*+ posun1->y*/ >= rect2->y + rect2->h)) {
-			posun1->y = rect1->y - (rect2->y + rect2->h);
+		else if (posun1->y < 0 && (rect1->y >= rect2->y + rect2->h)) {
+			posun1->y = rect1->y - (rect2->y + rect2->h) - posun2->y;
 			posun1->y *= -1;
 			rect1->y += posun1->y;
 			return eBodKolize::UP;
@@ -101,19 +92,8 @@ eBodKolize MistoKolize(SDL_Rect* rect1, TPosition* posun1, SDL_Rect* rect2, TPos
 	}
 	else
 		return eBodKolize::NONE;
-	
 }
-/*
-posun1->x = rect2->x - (rect1->x + rect1->w);
 
-posun1->x = rect1->x - (rect2->x + rect2->w);
-			posun1->x *= -1;
-
-posun1->y = rect2->y - (rect1->y + rect1->h);
-
-posun1->y = rect1->y - (rect2->y + rect2->h);
-			posun1->y *= -1;
-*/
 
 void Posun(SDL_Rect *rect1, TPosition *posun1, SDL_Rect* rect2, TPosition* posun2) {
 	eBodKolize posledniKolize = MistoKolize(rect1, posun1, rect2, posun2);
@@ -153,7 +133,7 @@ int main(int argc, char* args[]) {
 	
 
 	SDL_Init(SDL_INIT_EVERYTHING);
-	SDL_Window* window = SDL_CreateWindow("TITLE", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
+	SDL_Window* window = SDL_CreateWindow("TITLE", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1200, 1000, SDL_WINDOW_SHOWN);
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 1);
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -220,18 +200,18 @@ int main(int argc, char* args[]) {
 		if (PressedKey('w')) {
 			vec2.y = -1;
 		}
-		else if (PressedKey('s')) {
+		if (PressedKey('s')) {
 			vec2.y = 1;
 		}
-		else if (PressedKey('a')) {
+		if (PressedKey('a')) {
 			vec2.x = -1;
 		}
-		else if (PressedKey('d')) {
+		if (PressedKey('d')) {
 			vec2.x = 1;
 		}
 
 		Posun(rect1, &vec1, rect2, &vec2);
-		
+		Posun(rect2, &vec2, rect1, &vec1);
 
 		duration = std::chrono::duration_cast<std::chrono::milliseconds>(second - first);
 
