@@ -74,24 +74,28 @@ eBodKolize MistoKolize(SDL_Rect* rect1, TPosition* posun1, SDL_Rect* rect2, TPos
 			return eBodKolize::DOWN;
 		else if (posun1->y < 0 && posun2->y < 0)
 			return eBodKolize::UP;
-		else if (posun1->x > 0 && (rect1->x + rect1->w + posun1->x - 1 == rect2->x)) {
-			
 
+		else if (posun1->x > 0 && (rect1->x + rect1->w /*+ posun1->x*/ <= rect2->x)) { // >
+			posun1->x = rect2->x - (rect1->x + rect1->w);
+			rect1->x += posun1->x;
 			return eBodKolize::RIGHT; 
 		}
-		else if (posun1->x < 0 && (rect1->x + posun1->x + 1 == rect2->x + rect2->w)) {
-			
-
+		else if (posun1->x < 0 && (rect1->x /*+ posun1->x*/ >= rect2->x + rect2->w)) { // <
+			posun1->x = rect1->x - (rect2->x + rect2->w);
+			posun1->x *= -1;
+			rect1->x += posun1->x;
 			return eBodKolize::LEFT; 
 		}
-		else if (posun1->y > 0 && (rect1->y + posun1->y + rect1->h - 1 == rect2->y)) {
+		else if (posun1->y > 0 && (rect1->y /*+ posun1->y*/ + rect1->h <= rect2->y)) { // >
 			
-
+			posun1->y = rect2->y - (rect1->y + rect1->h);
+			rect1->y += posun1->y;
 			return eBodKolize::DOWN; 
 		}
-		else if (posun1->y < 0 && (rect1->y + posun1->y + 1 == rect2->y + rect2->h)) {
-			
-
+		else if (posun1->y < 0 && (rect1->y /*+ posun1->y*/ >= rect2->y + rect2->h)) {
+			posun1->y = rect1->y - (rect2->y + rect2->h);
+			posun1->y *= -1;
+			rect1->y += posun1->y;
 			return eBodKolize::UP;
 		}
 	}
@@ -199,16 +203,16 @@ int main(int argc, char* args[]) {
 
 		
 		if (PressedKey(VK_UP)) {
-			vec1.y = -1;
+			vec1.y = -3;
 		}
 		if (PressedKey(VK_DOWN)) {
-			vec1.y = 1;
+			vec1.y = 3;
 		}
 		if (PressedKey(VK_LEFT)) {
-			vec1.x = -1;
+			vec1.x = -3;
 		}
 		if (PressedKey(VK_RIGHT)) {
-			vec1.x = 1;
+			vec1.x = 3;
 		}
 		//vec1 = vec1 + gravity;
 
